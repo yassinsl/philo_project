@@ -12,12 +12,25 @@
         [number_of_times_each_philosopher_must_eat]\n"
 #define INVALID_ARGS "Error: Invalid Argements\n"
 //this the struct to get a valid argement;
+
+typedef s_create_philos
+{
+	int id;
+	int left_fork;
+	int right_fork;
+	int last_meal_time;
+	int meals_eaten;
+	int is_dead;
+	t_data_philosophers *data;
+} s_create_philos;
 typedef struct s_data_philos
 {
     int number_of_philosophers;
     int time_to_die;
     int time_to_eat;
     int time_to_sleep;
+    char *forks;
+    t_create_philosophers *philos;
 } t_data_philosophers;
 
 #endif

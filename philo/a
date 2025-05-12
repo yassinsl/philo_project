@@ -1,0 +1,9 @@
+void think_random_time(int philosopher_id) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    // Create pseudo-random microseconds using current time and philosopher ID
+    int microseconds = ((tv.tv_usec + philosopher_id * 1000) % 400 + 100) * 1000;
+
+    usleep(microseconds);  // Delay between 100ms and 500ms
+}
