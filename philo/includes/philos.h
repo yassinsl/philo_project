@@ -42,8 +42,8 @@ typedef struct s_data_philos
     int someone_died;
     long long start_time;
     pthread_mutex_t *forks;
-    pthread_mutex_t print_mutex;
-    pthread_mutex_t death_mutex;
+    pthread_mutex_t *print_mutex;
+    pthread_mutex_t *death_mutex;
     t_philos *philos;
 } t_data_philosophers;
 
