@@ -33,6 +33,7 @@ typedef struct s_create_philos
 
 typedef struct s_data_philos
 {
+    pthread_t monitor;
     int number_of_philosophers;
     int time_to_die;
     int time_to_eat;
