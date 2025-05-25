@@ -11,7 +11,6 @@
 void ft_error_msg(char *msg)
 {
     write(2, msg, ft_strlen(msg));
-    exit(1);
 }
 
 int ft_atoi(char *str)
@@ -28,45 +27,47 @@ int ft_atoi(char *str)
     while (*str && (*str >= '0' && *str <= '9')) 
     {
         if ((sign == 1 && num > INT_MAX) || (sign == -1 && num > -(long long)INT_MIN))
-            ft_error_msg(INVALID_ARGS);
+            return(-2);
         num = num * 10 + (*str++ - '0');
     }
     if (*str || num * sign <= 0)
-        ft_error_msg(INVALID_ARGS);
-    return (int)(sign * num);
+        return(-2);
+    return ((int)(sign * num));
 }
 
-void get_data_from_args(t_data_philosophers *philos_data, char **av)
+int  get_data_from_args(t_data_philosophers *philos_data, char **av)
 {
     philos_data->number_of_philosophers = ft_atoi(av[1]);
     philos_data->time_to_die = ft_atoi(av[2]);
     philos_data->time_to_eat = ft_atoi(av[3]);
     philos_data->time_to_sleep = ft_atoi(av[4]);
-
     if (av[5])
         philos_data->number_of_times_each_philosopher_must_eat = ft_atoi(av[5]);
     else
         philos_data->number_of_times_each_philosopher_must_eat = -1;
+    if(philos_data->number_of_philosophers == -2 || philos_data->time_to_die == -2 || philos_data->time_to_eat == -2 || philos_data->time_to_sleep  == -2 || philos_data->number_of_times_each_philosopher_must_eat == -2)
+        return(ft_error_msg(INVALID_NUMBER), -1);
+    return(0);
 }
 
-void create_mutexes(t_data_philosophers *philos)
+int create_mutexes(t_data_philosophers *philos)
 {
     int i;
 
     philos->forks = malloc(sizeof(pthread_mutex_t) * philos->number_of_philosophers);
     i = -1;
     if (!philos->forks)
-        ft_error_msg(ERROR_ALC);
+        return(-1);
     while(++i < philos->number_of_philosophers)
         pthread_mutex_init(&philos->forks[i], NULL);
     
     philos->print_mutex = malloc(sizeof(pthread_mutex_t));
     philos->death_mutex = malloc(sizeof(pthread_mutex_t));
     if (!philos->print_mutex || !philos->death_mutex)
-        ft_error_msg(ERROR_ALC);
-    
+        return(-1);
     pthread_mutex_init(philos->print_mutex, NULL);
     pthread_mutex_init(philos->death_mutex, NULL);
+    return(0);
 }
 
 long long get_current_time(void)
@@ -104,28 +105,30 @@ void print_status(t_philos *philo, char *msg)
 {
     pthread_mutex_lock(philo->data->print_mutex);
     if (!philo->data->someone_died)
-        printf("%lld %d %s\n", get_timestamp(philo->data), philo->id, msg);
+        printf("%lldms %d %s\n", get_timestamp(philo->data), philo->id, msg);
     pthread_mutex_unlock(philo->data->print_mutex);
 }
 
 void take_forks(t_philos *philo)
 {
-    if (philo->id % 2 == 0)
+    int first_fork;
+    int second_fork;
+
+    if (philo->left_fork < philo->right_fork)
     {
-        pthread_mutex_lock(&philo->data->forks[philo->right_fork]);
-        print_status(philo, TAKE_FORK);
-        pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
-        print_status(philo, TAKE_FORK);
+        first_fork = philo->left_fork;
+        second_fork = philo->right_fork;
     }
     else
     {
-        pthread_mutex_lock(&philo->data->forks[philo->left_fork]);
-        print_status(philo, TAKE_FORK);
-        pthread_mutex_lock(&philo->data->forks[philo->right_fork]);
-        print_status(philo, TAKE_FORK);
-    }
+        first_fork = philo->right_fork;
+        second_fork = philo->left_fork;
+    }    
+    pthread_mutex_lock(&philo->data->forks[first_fork]);
+    print_status(philo, TAKE_FORK);
+    pthread_mutex_lock(&philo->data->forks[second_fork]);
+    print_status(philo, TAKE_FORK);
 }
-
 void philo_eat(t_philos *philo)
 {
     pthread_mutex_lock(philo->data->death_mutex);
@@ -144,16 +147,28 @@ void *philo_routine(void *arg)
 {
     t_philos *philo;
 
-    philo = (t_philos *)arg;
-    if (philo->id % 2 != 0)
-        usleep(ONE_MSECOND);    
+    philo = arg;
+    if (philo->id % 2 == 1)
+        usleep(1500);
+    if (philo->data->number_of_philosophers == 1)
+    {
+        print_status(philo, "has taken a fork");
+        usleep(philo->data->time_to_die * 1000);
+        print_status(philo, "is dead");
+        philo->data->someone_died = 1;
+    }
     while (!philo->data->someone_died)
     {
-        print_status(philo, THINK_MSG);
-        take_forks(philo);
-        philo_eat(philo);
-        print_status(philo, SLEEP_MSG);
-        usleep(philo->data->time_to_sleep * 1000);
+        while (!philo->data->someone_died)
+        {
+            print_status(philo, THINK_MSG);
+            if(philo->id %2)
+                usleep(1500);
+            take_forks(philo);
+            philo_eat(philo);
+            print_status(philo, SLEEP_MSG);
+            usleep(philo->data->time_to_sleep * 1000);
+        }
     }
     return (NULL);
 }
@@ -196,7 +211,7 @@ void *monitor_routine(void *arg)
             if (get_current_time() - data->philos[i].last_meal_time > data->time_to_die)
             {
                 pthread_mutex_lock(data->print_mutex);
-                printf("%lld %d is dead\n", get_timestamp(data), data->philos[i].id);
+                printf("%lldms %d is dead\n", get_timestamp(data), data->philos[i].id);
                 data->someone_died = 1;
                 pthread_mutex_unlock(data->print_mutex);
                 pthread_mutex_unlock(data->death_mutex);
@@ -257,9 +272,11 @@ int main(int ac, char *av[])
 
     memset(&philos_data, 0, sizeof(t_data_philosophers));    
     if (ac != 5 && ac != 6)
-        ft_error_msg(INVALID_NUMBER);
-    get_data_from_args(&philos_data, av);
-    create_mutexes(&philos_data);
+        return(ft_error_msg(INVALID_NUMBER), 1);
+    if(get_data_from_args(&philos_data, av) == -1)
+        return(1);
+    if(create_mutexes(&philos_data) == -1)
+        return(1);
     create_philosophers(&philos_data);
     create_threads(&philos_data);
     return 0;
