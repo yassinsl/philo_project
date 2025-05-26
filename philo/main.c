@@ -6,7 +6,7 @@
 /*   By: ylahssin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 19:53:11 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/26 10:26:51 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/26 11:09:40 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,6 +160,8 @@ void *philo_routine(void *arg)
 {
     t_philos *philo;
     philo = arg;
+    if(philo->id % 2)
+	    usleep(1500);
     if (philo->data->number_of_philosophers == 1)
     {
         print_status(philo, "has taken a fork");
