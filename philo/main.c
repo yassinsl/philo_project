@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylahssin <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/25 19:53:11 by ylahssin          #+#    #+#             */
+/*   Updated: 2025/05/26 10:26:51 by ylahssin         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/philos.h"
 #include <string.h>
 #define ERROR_ALC "Error: Allocation Failed\n"
@@ -129,6 +141,7 @@ void take_forks(t_philos *philo)
     pthread_mutex_lock(&philo->data->forks[second_fork]);
     print_status(philo, TAKE_FORK);
 }
+
 void philo_eat(t_philos *philo)
 {
     pthread_mutex_lock(philo->data->death_mutex);
@@ -146,10 +159,7 @@ void philo_eat(t_philos *philo)
 void *philo_routine(void *arg)
 {
     t_philos *philo;
-
     philo = arg;
-    if (philo->id % 2 == 1)
-        usleep(1500);
     if (philo->data->number_of_philosophers == 1)
     {
         print_status(philo, "has taken a fork");
@@ -157,19 +167,18 @@ void *philo_routine(void *arg)
         print_status(philo, "is dead");
         philo->data->someone_died = 1;
     }
-    while (!philo->data->someone_died)
-    {
-        while (!philo->data->someone_died)
-        {
-            print_status(philo, THINK_MSG);
-            if(philo->id %2)
-                usleep(1500);
+	while (!philo->data->someone_died)
+	{
+	//check last meals
             take_forks(philo);
             philo_eat(philo);
             print_status(philo, SLEEP_MSG);
             usleep(philo->data->time_to_sleep * 1000);
+            print_status(philo, THINK_MSG);
+    if(philo->data->number_of_philosophers % 2)
+                	usleep((philo->data->time_to_die - (get_current_time() - philo->last_meal_time))* 0.9 * 1000); // always check time for negative values; usleep take size_t a negative number would represent a large value and would sleep almost indefinitly 
         }
-    }
+	//here take a flags so cool;
     return (NULL);
 }
 
