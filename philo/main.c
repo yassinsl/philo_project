@@ -6,7 +6,7 @@
 /*   By: ylahssin <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/25 19:53:11 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/26 11:09:40 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/26 18:46:05 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,7 @@ void take_forks(t_philos *philo)
     print_status(philo, TAKE_FORK);
 }
 
+
 void philo_eat(t_philos *philo)
 {
     pthread_mutex_lock(philo->data->death_mutex);
@@ -177,7 +178,9 @@ void *philo_routine(void *arg)
             print_status(philo, SLEEP_MSG);
             usleep(philo->data->time_to_sleep * 1000);
             print_status(philo, THINK_MSG);
-    if(philo->data->number_of_philosophers % 2)
+	    if(philo->data->someone_died)
+		    break;
+    if(philo->data->number_of_philosophers % 2 && get_current_time())
                 	usleep((philo->data->time_to_die - (get_current_time() - philo->last_meal_time))* 0.9 * 1000); // always check time for negative values; usleep take size_t a negative number would represent a large value and would sleep almost indefinitly 
         }
 	//here take a flags so cool;
@@ -237,7 +240,7 @@ void *monitor_routine(void *arg)
             pthread_mutex_unlock(data->death_mutex);
             return (NULL);
         }
-        usleep(ONE_MSECOND);
+	usleep(1000);
     }
     return (NULL);
 }
@@ -268,7 +271,7 @@ void create_threads(t_data_philosophers *data)
     data->someone_died = 0;
     i = -1;
     while (++i < data->number_of_philosophers)
-        pthread_create(&data->philos[i].thread, NULL, philo_routine, &data->philos[i]); 
+        pthread_create(&data->philos[i].thread, NULL, philo_routine, &data->philos[i]);
     pthread_create(&data->monitor, NULL, monitor_routine, data);
     pthread_join(data->monitor, NULL);
     i = -1;
