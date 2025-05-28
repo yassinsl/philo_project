@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:37:55 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/27 15:13:04 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/28 15:23:32 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,51 +32,60 @@ bool	all_ate_enough(t_data_philosophers *data)
 		return (FALSE);
 	all_done = TRUE;
 	i = -1;
+	pthread_mutex_lock(data->death_mutex);
 	while (++i < data->number_of_philosophers)
 	{
-		pthread_mutex_lock(data->death_mutex);
 		if (data->philos[i].meals_eaten < num)
 		{
 			all_done = FALSE;
-			pthread_mutex_unlock(data->death_mutex);
 			break ;
 		}
-		pthread_mutex_unlock(data->death_mutex);
 	}
+	pthread_mutex_unlock(data->death_mutex);
 	return (all_done);
 }
 
-int	check_deaths(t_data_philosophers *data)
+int check_deaths(t_data_philosophers *data)
 {
-	int	i;
+    int i;
+    long long current_time;
+    long long time_since_last_meal;
 
-	i = -1;
-	while (++i < data->number_of_philosophers)
-	{
-		pthread_mutex_lock(data->death_mutex);
-		if (get_current_time()
-			- data->philos[i].last_meal_time > data->time_to_die)
-		{
-			pthread_mutex_lock(data->print_mutex);
-			printf("%lld %d is dead\n", get_timestamp(data),
-				data->philos[i].id);
-			data->someone_died = 1;
-			pthread_mutex_unlock(data->print_mutex);
-			pthread_mutex_unlock(data->death_mutex);
-			return (1);
-		}
-		pthread_mutex_unlock(data->death_mutex);
-	}
-	return (0);
+    i = -1;
+    current_time = get_current_time();
+    
+    while (++i < data->number_of_philosophers)
+    {
+        pthread_mutex_lock(data->death_mutex);
+        time_since_last_meal = current_time - data->philos[i].last_meal_time;
+        if (time_since_last_meal >= data->time_to_die)
+        {
+            data->someone_died = 1;
+            pthread_mutex_lock(data->print_mutex);
+            printf("%lld %d is dead\n", get_timestamp(data), data->philos[i].id);
+            pthread_mutex_unlock(data->print_mutex);            
+            pthread_mutex_unlock(data->death_mutex);
+            return (1);
+        }
+        
+        pthread_mutex_unlock(data->death_mutex);
+    }
+    return (0);
 }
-
 void	*monitor_routine(void *arg)
 {
 	t_data_philosophers	*data;
 
 	data = (t_data_philosophers *)arg;
-	while (!data->someone_died)
+	while (1)
 	{
+		pthread_mutex_lock(data->death_mutex);
+		if (data->someone_died)
+        	{
+           	 pthread_mutex_unlock(data->death_mutex);
+            	break;
+        	}
+        pthread_mutex_unlock(data->death_mutex);
 		if (check_deaths(data))
 			return (NULL);
 		if (all_ate_enough(data))
@@ -86,7 +95,7 @@ void	*monitor_routine(void *arg)
 			pthread_mutex_unlock(data->death_mutex);
 			return (NULL);
 		}
-		usleep(1000);
+		ft_usleep(1);
 	}
 	return (NULL);
 }

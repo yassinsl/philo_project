@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 15:15:12 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/27 15:15:14 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/28 15:13:47 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,4 +83,6 @@ void							free_resources(t_data_philosophers *philos);
 void							create_threads(t_data_philosophers *philos);
 int								get_data_from_args(t_data_philosophers *data,
 									char **av);
+int ft_usleep(long int time_in_ms);
+bool should_stop(t_philos *philo);
 #endif

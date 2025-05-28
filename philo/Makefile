@@ -1,7 +1,7 @@
 NAME = philo
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror  #-fsanitize=thread -g -lpthread
 
 GREEN = \033[0;32m
 ORANGE = \033[0;33m
