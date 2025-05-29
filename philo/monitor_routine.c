@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:37:55 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 11:11:24 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 13:09:53 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int check_deaths(t_data_philosophers *data)
     {
         pthread_mutex_lock(data->death_mutex);
         time_since_last_meal = get_current_time() - data->philos[i].last_meal_time;
-        if (time_since_last_meal >= data->time_to_die)
+        if (time_since_last_meal > data->time_to_die)
         {
             data->someone_died = 1;
             pthread_mutex_lock(data->print_mutex);
@@ -65,7 +65,6 @@ int check_deaths(t_data_philosophers *data)
             pthread_mutex_unlock(data->death_mutex);
             return (1);
         }
-        
         pthread_mutex_unlock(data->death_mutex);
     }
     return (0);

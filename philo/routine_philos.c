@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 12:33:51 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 13:02:57 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool should_stop(t_philos *philo)
     pthread_mutex_unlock(philo->data->death_mutex);
     return (stop);
 }
-bool take_forks(t_philos *philo)
+void take_forks(t_philos *philo)
 {
     int first_fork;
     int second_fork;
@@ -73,7 +73,7 @@ bool take_forks(t_philos *philo)
     if (should_stop(philo))
     {
         pthread_mutex_unlock(&philo->data->forks[first_fork]);
-        return false;
+        return;
     }
     print_status(philo, TAKE_FORK);
     
@@ -82,10 +82,9 @@ bool take_forks(t_philos *philo)
     {
         pthread_mutex_unlock(&philo->data->forks[first_fork]);
         pthread_mutex_unlock(&philo->data->forks[second_fork]);
-        return false;
+        return;
     }
     print_status(philo, TAKE_FORK);
-    return true;
 }
 void	philo_eat(t_philos *philo)
 {
@@ -126,9 +125,9 @@ void	*philo_routine(void *arg)
 		if(should_stop(philo))
 			break;
 		philo_eat(philo);
+		print_status(philo, SLEEP_MSG);
 		if(should_stop(philo))
 			break;
-		print_status(philo, SLEEP_MSG);
 		usleep(philo->data->time_to_sleep*1000);
 		print_status(philo, THINK_MSG);
 		if(should_stop(philo))
