@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 13:02:57 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 14:21:11 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,29 +21,6 @@
  * Return(philos_routine): NULL if secceeded
  * Rrturn(take_fork philos_eat) : NON Return
  */
-/*int ft_usleep(long int time_in_ms)
-{
-    long int start_time;
-    long int current_time;
-    long int remaining;
-
-    start_time = get_current_time();
-    while (1)
-    {
-        current_time = get_current_time();
-        remaining = time_in_ms - (current_time - start_time);
-
-        if (remaining <= 0)
-            break;
-
-        if (remaining > 1)
-            usleep(remaining * 1000 / 2);
-        else
-            usleep(100);
-    }
-    return (1);
-}
-*/
 bool should_stop(t_philos *philo)
 {
     bool stop;
@@ -52,6 +29,16 @@ bool should_stop(t_philos *philo)
     stop = philo->data->someone_died;
     pthread_mutex_unlock(philo->data->death_mutex);
     return (stop);
+}
+void ft_usleep(int duration, t_philos  *philos)
+{
+    long start = get_current_time();
+    while (!should_stop(philos))
+    {
+        if (get_current_time() - start >= duration)
+            break;
+        usleep(100); 
+    }
 }
 void take_forks(t_philos *philo)
 {
@@ -104,9 +91,9 @@ void	philo_eat(t_philos *philo)
 
 void	one_philos(t_philos *philos)
 {
-	print_status(philos, "has taken a fork");
+	print_status(philos, TAKE_FORK);
 	usleep(philos->data->time_to_die * 1000);
-	print_status(philos, "is dead");
+	print_status(philos, IS_DEAD_MSG);
 	philos->data->someone_died = 1;
 }
 
@@ -128,12 +115,9 @@ void	*philo_routine(void *arg)
 		print_status(philo, SLEEP_MSG);
 		if(should_stop(philo))
 			break;
-		usleep(philo->data->time_to_sleep*1000);
+		ft_usleep(philo->data->time_to_sleep, philo);
 		print_status(philo, THINK_MSG);
-		if(should_stop(philo))
-			break;
-		if (philo->data->number_of_philosophers % 2)
-	if(philo->data->number_of_philosophers % 2 && get_current_time())
+	if(philo->data->number_of_philosophers % 2)
                 	usleep((philo->data->time_to_die - (get_current_time() - philo->last_meal_time))* 0.9 * 1000); // always check time for negative values; usleep take size_t a negative number would represent a large value and would sleep almost indefinitly 
         }
 	return (NULL);
