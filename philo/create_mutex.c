@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 10:58:41 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/27 11:12:19 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 18:58:14 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,15 @@ int	create_mutexes(t_data_philosophers *philos)
 	if (!philos->forks)
 		return (-1);
 	while (++i < philos->number_of_philosophers)
-		pthread_mutex_init(&philos->forks[i], NULL);
+		if(pthread_mutex_init(&philos->forks[i], NULL))
+			return 0;
 	philos->print_mutex = malloc(sizeof(pthread_mutex_t));
 	philos->death_mutex = malloc(sizeof(pthread_mutex_t));
 	if (!philos->print_mutex || !philos->death_mutex)
 		return (-1);
-	pthread_mutex_init(philos->print_mutex, NULL);
-	pthread_mutex_init(philos->death_mutex, NULL);
+	if(pthread_mutex_init(philos->print_mutex, NULL))
+		return -1;
+	if(pthread_mutex_init(philos->death_mutex, NULL))
+			return(-1);
 	return (0);
 }

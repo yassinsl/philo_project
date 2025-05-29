@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 15:15:12 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 14:16:48 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 18:43:28 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void							think_random_time(int id);
 void							*create_a_philos_routine(void *arg);
 void							*monitor_routine(void *arg);
 void							free_resources(t_data_philosophers *philos);
-void							create_threads(t_data_philosophers *philos);
+int create_threads(t_data_philosophers *philos);
 int								get_data_from_args(t_data_philosophers *data,
 									char **av);
 void ft_usleep(int duration, t_philos  *data);

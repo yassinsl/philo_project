@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 13:51:53 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/27 14:03:55 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 18:42:50 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
  * Return: NONE Return
  */
 
-void	create_threads(t_data_philosophers *data)
+int	create_threads(t_data_philosophers *data)
 {
 	int	i;
 
@@ -26,12 +26,14 @@ void	create_threads(t_data_philosophers *data)
 	data->someone_died = 0;
 	i = -1;
 	while (++i < data->number_of_philosophers)
-		pthread_create(&data->philos[i].thread, NULL, philo_routine,
-			&data->philos[i]);
+		if(pthread_create(&data->philos[i].thread, NULL, philo_routine,
+			&data->philos[i]))
+			return(ft_error_msg("allocation failed\n"), 2);
 	pthread_create(&data->monitor, NULL, monitor_routine, data);
 	pthread_join(data->monitor, NULL);
 	i = -1;
 	while (++i < data->number_of_philosophers)
 		pthread_join(data->philos[i].thread, NULL);
 	free_resources(data);
+	return(0);
 }
