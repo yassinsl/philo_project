@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 14:21:11 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 17:57:34 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void	*philo_routine(void *arg)
 		print_status(philo, SLEEP_MSG);
 		if(should_stop(philo))
 			break;
-		ft_usleep(philo->data->time_to_sleep, philo);
+		usleep(philo->data->time_to_sleep * 1000);
 		print_status(philo, THINK_MSG);
 	if(philo->data->number_of_philosophers % 2)
                 	usleep((philo->data->time_to_die - (get_current_time() - philo->last_meal_time))* 0.9 * 1000); // always check time for negative values; usleep take size_t a negative number would represent a large value and would sleep almost indefinitly 
