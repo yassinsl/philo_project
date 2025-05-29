@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:37:55 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/28 15:23:32 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 11:11:24 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,14 @@ bool	all_ate_enough(t_data_philosophers *data)
 int check_deaths(t_data_philosophers *data)
 {
     int i;
-    long long current_time;
     long long time_since_last_meal;
 
     i = -1;
-    current_time = get_current_time();
     
     while (++i < data->number_of_philosophers)
     {
         pthread_mutex_lock(data->death_mutex);
-        time_since_last_meal = current_time - data->philos[i].last_meal_time;
+        time_since_last_meal = get_current_time() - data->philos[i].last_meal_time;
         if (time_since_last_meal >= data->time_to_die)
         {
             data->someone_died = 1;
@@ -85,7 +83,7 @@ void	*monitor_routine(void *arg)
            	 pthread_mutex_unlock(data->death_mutex);
             	break;
         	}
-        pthread_mutex_unlock(data->death_mutex);
+        	pthread_mutex_unlock(data->death_mutex);
 		if (check_deaths(data))
 			return (NULL);
 		if (all_ate_enough(data))
@@ -95,7 +93,7 @@ void	*monitor_routine(void *arg)
 			pthread_mutex_unlock(data->death_mutex);
 			return (NULL);
 		}
-		ft_usleep(1);
+		usleep(1000);
 	}
 	return (NULL);
 }
