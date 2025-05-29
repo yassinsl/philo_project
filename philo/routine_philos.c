@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/29 11:20:31 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/29 12:33:51 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool should_stop(t_philos *philo)
     pthread_mutex_unlock(philo->data->death_mutex);
     return (stop);
 }
-void take_forks(t_philos *philo)
+bool take_forks(t_philos *philo)
 {
     int first_fork;
     int second_fork;
@@ -73,7 +73,7 @@ void take_forks(t_philos *philo)
     if (should_stop(philo))
     {
         pthread_mutex_unlock(&philo->data->forks[first_fork]);
-        return;
+        return false;
     }
     print_status(philo, TAKE_FORK);
     
@@ -82,9 +82,10 @@ void take_forks(t_philos *philo)
     {
         pthread_mutex_unlock(&philo->data->forks[first_fork]);
         pthread_mutex_unlock(&philo->data->forks[second_fork]);
-        return;
+        return false;
     }
     print_status(philo, TAKE_FORK);
+    return true;
 }
 void	philo_eat(t_philos *philo)
 {
@@ -122,10 +123,16 @@ void	*philo_routine(void *arg)
 	while (!should_stop(philo))
 	{
 		take_forks(philo);
+		if(should_stop(philo))
+			break;
 		philo_eat(philo);
+		if(should_stop(philo))
+			break;
 		print_status(philo, SLEEP_MSG);
 		usleep(philo->data->time_to_sleep*1000);
 		print_status(philo, THINK_MSG);
+		if(should_stop(philo))
+			break;
 		if (philo->data->number_of_philosophers % 2)
 	if(philo->data->number_of_philosophers % 2 && get_current_time())
                 	usleep((philo->data->time_to_die - (get_current_time() - philo->last_meal_time))* 0.9 * 1000); // always check time for negative values; usleep take size_t a negative number would represent a large value and would sleep almost indefinitly 
