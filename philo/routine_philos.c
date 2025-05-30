@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/30 10:24:27 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/30 11:23:09 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void ft_usleep(int duration, t_philos *philos)
     {
         if (get_current_time() - start >= duration)
             break;
-        usleep(50);
+        usleep(100);
     }
 }
 
@@ -114,8 +114,16 @@ void *philo_routine(void *arg)
     if (philo->data->number_of_philosophers == 1)
         return (one_philos(philo), NULL);
     
-    while (!should_stop(philo))
-    {
+    while (1)
+    {        
+	pthread_mutex_lock(philo->data->death_mutex);
+        if (philo->data->number_of_times_each_philosopher_must_eat != -1 && 
+            philo->meals_eaten >= philo->data->number_of_times_each_philosopher_must_eat)
+        {
+            pthread_mutex_unlock(philo->data->death_mutex);
+            return (NULL);
+        }
+        pthread_mutex_unlock(philo->data->death_mutex);
         if (take_forks(philo) == -1)
             break;
         if (should_stop(philo))
@@ -123,8 +131,7 @@ void *philo_routine(void *arg)
             pthread_mutex_unlock(&philo->data->forks[philo->left_fork]);
             pthread_mutex_unlock(&philo->data->forks[philo->right_fork]);
             break;
-        }
-        
+        } 
         philo_eat(philo);
         if (should_stop(philo))
             break;
