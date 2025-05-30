@@ -6,7 +6,7 @@
 /*   By: ylahssin <ylahssin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 14:05:58 by ylahssin          #+#    #+#             */
-/*   Updated: 2025/05/30 11:23:09 by ylahssin         ###   ########.fr       */
+/*   Updated: 2025/05/30 11:29:59 by ylahssin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void *philo_routine(void *arg)
         if (philo->data->number_of_times_each_philosopher_must_eat != -1 && 
             philo->meals_eaten >= philo->data->number_of_times_each_philosopher_must_eat)
         {
-            pthread_mutex_unlock(philo->data->death_mutex);
+           pthread_mutex_unlock(philo->data->death_mutex);
             return (NULL);
         }
         pthread_mutex_unlock(philo->data->death_mutex);
