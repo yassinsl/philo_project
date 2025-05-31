@@ -20,7 +20,10 @@ SRC = \
 	monitor_routine.c \
 	parse_argements.c \
 	print_status.c \
-	routine_philos.c
+	routine_philos.c \
+	take_forks.c \
+	should_die.c \
+
 
 OBJ = $(SRC:.c=.o)
 
